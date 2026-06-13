@@ -41,7 +41,7 @@ This approach is useful because it moves knowledge management from a passive "se
 **Backend:** Node.js, Express, multer, pdf-parse
 **Database:** Supabase (PostgreSQL with pgvector)
 **AI Tools/API:** Google Gemini (`gemini-2.5-flash`, `gemini-embedding-2`)
-**Cloud/Deployment:** Localhost (Vite/Express) / Supabase Cloud
+**Cloud/Deployment:** Vercel (Frontend) / Supabase Cloud (Database & Vectors)
 **Other Tools:** GitHub, Antigravity IDE
 
 ---
@@ -72,7 +72,7 @@ This approach is useful because it moves knowledge management from a passive "se
 
 ## Screenshots or Demo
 
-**Deployed Link:** Not yet deployed (running locally for demo)
+**Deployed Link:** https://memory-graph-ai.vercel.app
 **Demo Video Link:** [Insert Link Here]
 **Screenshots:** [Insert Links Here]
 
