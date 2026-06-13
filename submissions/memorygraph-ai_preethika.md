@@ -6,7 +6,7 @@
 
 **Name:** Preethika
 **GitHub Username:** MPreethika16
-**LinkedIn Profile:** [Insert your LinkedIn Link here]
+**LinkedIn Profile:** [\[Insert your LinkedIn Link here\]](https://www.linkedin.com/in/preethika-manepally/)
 **GitHub Project Repository:** https://github.com/MPreethika16/MemoryGraph-AI
 
 ---
@@ -73,7 +73,7 @@ This approach is useful because it moves knowledge management from a passive "se
 ## Screenshots or Demo
 
 **Deployed Link:** https://memory-graph-ai.vercel.app
-**Demo Video Link:** [Insert Link Here]
+**Demo Video Link:** https://drive.google.com/file/d/1Jx_Mtn_YjOUn6gUmVuHrEDxRkdTdKgda/view?usp=sharing
 **Screenshots:** [Insert Links Here]
 
 ---
