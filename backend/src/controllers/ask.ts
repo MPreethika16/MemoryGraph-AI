@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { generateEmbedding, generateAnswer } from '../services/openai';
+import { generateEmbedding, generateAnswer } from '../services/gemini';
 import { searchSimilarChunks } from '../services/supabase';
 
 export const handleAsk = async (req: Request, res: Response) => {

@@ -13,12 +13,12 @@ create table if not exists document_chunks (
   id uuid primary key default gen_random_uuid(),
   document_id uuid references documents(id) on delete cascade,
   content text not null,
-  embedding vector(1536) -- OpenAI text-embedding-3-small generates 1536 dimensions
+  embedding vector(768) -- Gemini text-embedding-004 generates 768 dimensions
 );
 
 -- Create a function to similarity search for chunks
 create or replace function match_document_chunks (
-  query_embedding vector(1536),
+  query_embedding vector(768),
   match_threshold float,
   match_count int
 )

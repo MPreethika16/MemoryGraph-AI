@@ -1,10 +1,23 @@
-import React from 'react';
-import { Search, Bell, User, Moon } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Search, Bell, Settings, Moon } from 'lucide-react';
+import { useMemoryGraph } from '@/context/MemoryGraphContext';
+import { healthCheck } from '@/lib/api';
 import { useLocation } from 'react-router-dom';
 
 export function Header() {
+  const { backendConnected, setBackendConnected } = useMemoryGraph();
   const location = useLocation();
   const pathnames = location.pathname.split('/').filter((x) => x);
+
+  useEffect(() => {
+    const checkBackend = async () => {
+      const res = await healthCheck();
+      setBackendConnected(!!res);
+    };
+    checkBackend();
+    const interval = setInterval(checkBackend, 30000); // Check every 30s
+    return () => clearInterval(interval);
+  }, [setBackendConnected]);
 
   return (
     <header className="h-16 border-b bg-background flex items-center justify-between px-6 sticky top-0 z-10">
@@ -43,6 +56,12 @@ export function Header() {
       </div>
 
       <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex items-center gap-2 mr-4 bg-muted/50 px-3 py-1.5 rounded-full border border-border">
+          <div className={`w-2 h-2 rounded-full ${backendConnected ? 'bg-emerald-500 animate-pulse' : 'bg-destructive'}`}></div>
+          <span className="text-xs font-medium text-muted-foreground hidden sm:inline-block">
+            {backendConnected ? 'MemoryGraph API Online' : 'API Offline'}
+          </span>
+        </div>
         <button className="text-muted-foreground hover:text-foreground">
           <Bell className="w-5 h-5" />
         </button>

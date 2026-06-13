@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import { handleUpload } from './controllers/upload';
 import { handleAsk } from './controllers/ask';
 
-dotenv.config();
+dotenv.config({ override: true });
 
 const app = express();
 const port = process.env.PORT || 3001;

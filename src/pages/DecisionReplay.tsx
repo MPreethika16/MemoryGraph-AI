@@ -5,8 +5,35 @@ import {
   AlertTriangle, ShieldCheck, FileQuestion, ArrowRight, XCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useMemoryGraph } from '@/context/MemoryGraphContext';
+
+const mockDataFallback = {
+  timeline: [
+    { phase: 'Proposal', date: 'Sep 01, 2025', title: 'Initial RFC Published', description: 'Megha proposed moving to GraphQL to fix mobile performance degradation caused by multiple REST roundtrips.' },
+    { phase: 'Discussion', date: 'Sep 15, 2025', title: 'Engineering All-Hands Debate', description: 'Backend team raised concerns about N+1 query problems and caching difficulties compared to standard REST endpoints.' },
+    { phase: 'Review', date: 'Oct 05, 2025', title: 'Architecture Committee Review', description: 'Evaluated dataloader implementations to mitigate N+1. Approved Apollo Server as the gateway.' },
+    { phase: 'Approval', date: 'Oct 14, 2025', title: 'Final CTO Sign-off', description: 'Decision officially approved for Q1 roadmap implementation.' }
+  ],
+  alternativesConsidered: [
+    { option: 'Option A: REST API Improvements', description: 'Maintenance burden of creating bespoke BFF (Backend-for-Frontend) endpoints was too high.' },
+    { option: 'Option B: GraphQL', description: 'Exact data fetching, unified graph, excellent developer tooling. Long-term velocity gains outweighed short-term infrastructure costs.' }
+  ],
+  stakeholders: [
+    { name: 'Megha', role: 'Frontend Architect' },
+    { name: 'Rahul', role: 'Engineering Lead' },
+    { name: 'Arjun', role: 'CTO' }
+  ]
+};
 
 export default function DecisionReplay() {
+  const { decisionReplay, lastQuestion, activeResponse } = useMemoryGraph();
+
+  // Fallback to mock data if no dynamic replay data exists
+  const isMock = !decisionReplay;
+  const data = decisionReplay || mockDataFallback;
+  const confidence = activeResponse?.confidenceScore || 92;
+  const rationale = decisionReplay?.finalRationale || "Migrated from REST to GraphQL to solve over-fetching issues on the mobile client and improve developer velocity for frontend teams. Performance concerns were heavily debated but resolved via query complexity limiting.";
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-12">
       <PageHeader 
@@ -23,7 +50,7 @@ export default function DecisionReplay() {
           type="text"
           className="block w-full pl-14 pr-4 py-4 text-lg border-2 border-primary/20 rounded-xl leading-5 bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm transition-all"
           placeholder="e.g. Why did we migrate to GraphQL?"
-          defaultValue="Why did we migrate to GraphQL?"
+          defaultValue={lastQuestion || "Why did we migrate to GraphQL?"}
         />
         <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
           <span className="text-sm font-medium text-muted-foreground bg-muted px-2 py-1 rounded">↵ Enter</span>
@@ -47,7 +74,7 @@ export default function DecisionReplay() {
                 <p className="text-muted-foreground">Decided on October 14, 2025</p>
               </div>
               <div className="text-right">
-                <div className="text-4xl font-bold text-primary">92%</div>
+                <div className="text-4xl font-bold text-primary">{confidence}%</div>
                 <div className="text-sm font-medium text-muted-foreground mt-1">Confidence Score</div>
               </div>
             </div>
@@ -74,7 +101,7 @@ export default function DecisionReplay() {
             <div>
               <h4 className="font-semibold mb-2">TL;DR Rationale</h4>
               <p className="text-muted-foreground leading-relaxed">
-                Migrated from REST to GraphQL to solve over-fetching issues on the mobile client and improve developer velocity for frontend teams. Performance concerns were heavily debated but resolved via query complexity limiting.
+                {rationale}
               </p>
             </div>
           </div>
@@ -88,68 +115,26 @@ export default function DecisionReplay() {
             
             <div className="relative pl-8 space-y-8 before:absolute before:inset-0 before:ml-[1.1rem] before:w-0.5 before:-translate-x-px before:bg-border md:before:mx-auto md:before:translate-x-0">
               
-              {/* Proposal */}
-              <div className="relative">
-                <div className="absolute -left-10 w-5 h-5 rounded-full bg-primary ring-4 ring-background z-10"></div>
-                <div className="bg-card border rounded-xl p-5 shadow-sm ml-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold uppercase text-primary tracking-wider">Proposal</span>
-                    <span className="text-xs text-muted-foreground">Sep 01, 2025</span>
-                  </div>
-                  <h4 className="font-semibold text-lg mb-2">Initial RFC Published</h4>
-                  <p className="text-sm text-muted-foreground mb-3">Megha proposed moving to GraphQL to fix mobile performance degradation caused by multiple REST roundtrips.</p>
-                  <div className="flex gap-2">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs"><FileText className="w-3 h-3" /> RFC-42</span>
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs"><Users className="w-3 h-3" /> Megha</span>
-                  </div>
-                </div>
-              </div>
+              {data.timeline && data.timeline.map((event: any, i: number) => {
+                const colors = ['bg-primary', 'bg-amber-500', 'bg-blue-500', 'bg-emerald-500', 'bg-purple-500'];
+                const colorClass = colors[i % colors.length];
+                const textColors = ['text-primary', 'text-amber-500', 'text-blue-500', 'text-emerald-500', 'text-purple-500'];
+                const textColorClass = textColors[i % textColors.length];
 
-              {/* Discussion */}
-              <div className="relative">
-                <div className="absolute -left-10 w-5 h-5 rounded-full bg-amber-500 ring-4 ring-background z-10"></div>
-                <div className="bg-card border rounded-xl p-5 shadow-sm ml-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold uppercase text-amber-500 tracking-wider">Discussion</span>
-                    <span className="text-xs text-muted-foreground">Sep 15, 2025</span>
+                return (
+                  <div key={i} className="relative">
+                    <div className={`absolute -left-10 w-5 h-5 rounded-full ${colorClass} ring-4 ring-background z-10`}></div>
+                    <div className="bg-card border rounded-xl p-5 shadow-sm ml-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className={`text-xs font-bold uppercase ${textColorClass} tracking-wider`}>{event.phase || "Event"}</span>
+                        <span className="text-xs text-muted-foreground">{event.date || "Unknown Date"}</span>
+                      </div>
+                      <h4 className="font-semibold text-lg mb-2">{event.title || "Timeline Event"}</h4>
+                      <p className="text-sm text-muted-foreground mb-3">{event.description}</p>
+                    </div>
                   </div>
-                  <h4 className="font-semibold text-lg mb-2">Engineering All-Hands Debate</h4>
-                  <p className="text-sm text-muted-foreground mb-3">Backend team raised concerns about N+1 query problems and caching difficulties compared to standard REST endpoints.</p>
-                  <div className="flex gap-2">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs"><MessageSquare className="w-3 h-3" /> #eng-architecture</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Review */}
-              <div className="relative">
-                <div className="absolute -left-10 w-5 h-5 rounded-full bg-blue-500 ring-4 ring-background z-10"></div>
-                <div className="bg-card border rounded-xl p-5 shadow-sm ml-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold uppercase text-blue-500 tracking-wider">Review</span>
-                    <span className="text-xs text-muted-foreground">Oct 05, 2025</span>
-                  </div>
-                  <h4 className="font-semibold text-lg mb-2">Architecture Committee Review</h4>
-                  <p className="text-sm text-muted-foreground mb-3">Evaluated dataloader implementations to mitigate N+1. Approved Apollo Server as the gateway.</p>
-                  <div className="flex gap-2">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs"><FileText className="w-3 h-3" /> Architecture Notes</span>
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-muted rounded text-xs"><Users className="w-3 h-3" /> Arjun, Rahul</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Approval */}
-              <div className="relative">
-                <div className="absolute -left-10 w-5 h-5 rounded-full bg-emerald-500 ring-4 ring-background z-10"></div>
-                <div className="bg-card border rounded-xl p-5 shadow-sm ml-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold uppercase text-emerald-500 tracking-wider">Approval</span>
-                    <span className="text-xs text-muted-foreground">Oct 14, 2025</span>
-                  </div>
-                  <h4 className="font-semibold text-lg mb-2">Final CTO Sign-off</h4>
-                  <p className="text-sm text-muted-foreground mb-3">Decision officially approved for Q1 roadmap implementation.</p>
-                </div>
-              </div>
+                );
+              })}
 
             </div>
           </div>
@@ -162,47 +147,21 @@ export default function DecisionReplay() {
             </h3>
             
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="bg-card border rounded-xl p-6 shadow-sm flex flex-col">
-                <div className="flex justify-between items-start mb-4">
-                  <h4 className="font-semibold text-lg">Option A: REST API Improvements</h4>
-                  <span className="bg-destructive/10 text-destructive px-2 py-1 rounded text-xs font-bold uppercase">Rejected</span>
-                </div>
-                <div className="space-y-4 flex-1">
-                  <div>
-                    <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1 block">Pros</span>
-                    <p className="text-sm text-muted-foreground">No new infrastructure, relies on existing knowledge.</p>
+              {data.alternativesConsidered && data.alternativesConsidered.map((alt: any, i: number) => {
+                const isSelected = i === (data.alternativesConsidered.length - 1); // Assuming last is selected, or checking status if it exists
+                return (
+                  <div key={i} className={cn("border rounded-xl p-6 shadow-sm flex flex-col", isSelected ? "bg-primary/5 border-primary/20" : "bg-card")}>
+                    <div className="flex justify-between items-start mb-4">
+                      <h4 className={cn("font-semibold text-lg", isSelected ? "text-primary" : "")}>{alt.option || "Alternative"}</h4>
+                    </div>
+                    <div className="space-y-4 flex-1">
+                      <div>
+                        <p className="text-sm text-muted-foreground">{alt.description || alt.pros}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-xs font-semibold text-destructive uppercase tracking-wider mb-1 block">Cons</span>
-                    <p className="text-sm text-muted-foreground">Doesn't solve the core over-fetching issue on mobile.</p>
-                  </div>
-                </div>
-                <div className="mt-6 pt-4 border-t">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Reason Rejected</span>
-                  <p className="text-sm">Maintenance burden of creating bespoke BFF (Backend-for-Frontend) endpoints was too high.</p>
-                </div>
-              </div>
-
-              <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 shadow-sm flex flex-col">
-                <div className="flex justify-between items-start mb-4">
-                  <h4 className="font-semibold text-lg text-primary">Option B: GraphQL</h4>
-                  <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold uppercase">Selected</span>
-                </div>
-                <div className="space-y-4 flex-1">
-                  <div>
-                    <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1 block">Pros</span>
-                    <p className="text-sm text-foreground">Exact data fetching, unified graph, excellent developer tooling.</p>
-                  </div>
-                  <div>
-                    <span className="text-xs font-semibold text-destructive uppercase tracking-wider mb-1 block">Cons</span>
-                    <p className="text-sm text-foreground">Caching complexity, steep learning curve.</p>
-                  </div>
-                </div>
-                <div className="mt-6 pt-4 border-t border-primary/20">
-                  <span className="text-xs font-semibold text-primary/70 uppercase tracking-wider mb-1 block">Reason Selected</span>
-                  <p className="text-sm font-medium">Long-term velocity gains outweighed short-term infrastructure costs.</p>
-                </div>
-              </div>
+                );
+              })}
             </div>
           </div>
 
@@ -218,8 +177,8 @@ export default function DecisionReplay() {
               Confidence Analysis
             </h3>
             <div className="mb-6 flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-foreground">92%</span>
-              <span className="text-sm font-medium text-emerald-500">High Trust</span>
+              <span className="text-4xl font-bold text-foreground">{confidence}%</span>
+              <span className="text-sm font-medium text-emerald-500">Confidence</span>
             </div>
             
             <div className="space-y-3">
@@ -274,40 +233,28 @@ export default function DecisionReplay() {
               Key Stakeholders
             </h3>
             <div className="space-y-4">
-              
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">M</div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold">Megha</p>
-                  <p className="text-xs text-muted-foreground">Frontend Architect</p>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-medium bg-muted px-2 py-0.5 rounded">Inf: High</div>
-                </div>
-              </div>
+              {data.stakeholders && data.stakeholders.map((person: any, i: number) => {
+                const name = typeof person === 'string' ? person : person.name;
+                const role = typeof person === 'string' ? 'Stakeholder' : person.role;
+                const initial = name ? name.charAt(0) : 'U';
+                const styleOptions = [
+                  { bg: 'bg-primary/20', text: 'text-primary' },
+                  { bg: 'bg-amber-500/20', text: 'text-amber-600' },
+                  { bg: 'bg-emerald-500/20', text: 'text-emerald-600' },
+                  { bg: 'bg-blue-500/20', text: 'text-blue-600' },
+                ];
+                const style = styleOptions[i % styleOptions.length];
 
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-600 font-bold">R</div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold">Rahul</p>
-                  <p className="text-xs text-muted-foreground">Engineering Lead</p>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-medium bg-muted px-2 py-0.5 rounded">Inf: Med</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-600 font-bold">A</div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold">Arjun</p>
-                  <p className="text-xs text-muted-foreground">CTO</p>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-medium bg-muted px-2 py-0.5 rounded">Inf: High</div>
-                </div>
-              </div>
-
+                return (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full ${style.bg} flex items-center justify-center ${style.text} font-bold`}>{initial}</div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold">{name}</p>
+                      <p className="text-xs text-muted-foreground">{role}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
